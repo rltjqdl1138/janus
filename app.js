@@ -4,6 +4,7 @@ var express = require('express')
 var app = express();
 var bodyParser = require('body-parser');
 const router = express.Router();
+const janus = require('./janus/server')
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
