@@ -15,7 +15,6 @@ Media.init({debug: "all", callback: () => {
                 success: (pluginHandle)=>{
                     sfutest = pluginHandle;
 					console.log("Plugin attached! (" + sfutest.getPlugin() + ", id=" + sfutest.getId() + ")");
-					var register = { "request": "list" }
 				    Media.event = media.customEvent;
                     Media.session = sfutest.getId();
                 },
@@ -68,7 +67,6 @@ Media.init({debug: "all", callback: () => {
                             msg["bitrate"] = "1000000";
                         }
 
-
                         var register = {
                             "request": "create",
                             "room" : Number(msg["room"]),
@@ -80,28 +78,30 @@ Media.init({debug: "all", callback: () => {
                         }
 
                         sfutest.send({"message": register, "success":(data)=>{
-                            console.log("create?" + msg["room"])
+                            console.log("create! " + msg["room"])
                         }});
                     }
                     else if(msg["updateroom"]!=undefined){
                         var register = { "request": "list" }
+                        console.log('update room list')
 
-                        console.log('h')
                         sfutest.send({"message": register, "success":(data)=>{
                             for ( var room in data.list){
+                                rooms[data.list[room].room] = {}
+                                Object.assign(rooms[data.list[room].room],{}, {"description":data.list[room].description})
                                 register = {
                                     "request": "listparticipants",
                                     "room" : data.list[room].room
                                 }
                                 sfutest.send({"message": register, "success":(data)=>{
-                                    if(data.participants[0] == undefined){
-                                        rooms[data.room] = 0
-                                        console.log('empty')
+                                    var publisher = data.participants[0];
+                                    if(publisher == undefined){
+                                        Object.assign(rooms[data.room],{},rooms[data.room], {id:0})
                                     }
                                     else{
-                                        if(rooms[data.participants[0].id]==undefined)
-                                            rooms[data.room] = data.participants[0].id
-                                        console.log(rooms[data.participants[0].id])
+                                        if(rooms[publisher.id]==undefined){
+                                           Object.assign(rooms[data.room],{},rooms[data.room], {id:publisher.id})
+                                        }
                                     }
                                 }});
                             }

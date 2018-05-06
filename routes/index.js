@@ -8,11 +8,12 @@ router.post('/media/event', (req, res)=>{
 	res.end();
 })
 router.post('/media/list', (req, res)=>{
+	var result = {};
 	console.log(">>list<<")
 	for(var l in Rooms){
-		console.log(l+": "+Rooms[l])
+		result[l] = {"Room":Rooms[l]}
 	}
-	res.end()
+	res.json(result)
 })
 
 module.exports = router

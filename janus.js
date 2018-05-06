@@ -408,7 +408,6 @@ function Janus(gatewayCallbacks) {
 	this.getSessionId = function() { return sessionId; };
 	this.destroy = function(callbacks) { destroySession(callbacks); };
 	this.attach = function(callbacks) { createHandle(callbacks); };
-
 	function eventHandler() {
 		if(sessionId == null)
 			return;
@@ -431,6 +430,7 @@ function Janus(gatewayCallbacks) {
 			timeout: 60000,	// FIXME
 			error: function(textStatus, errorThrown) {
 				Janus.error(textStatus + ":", errorThrown);
+				Janus.log(errorThrown)
 				retries++;
 				if(retries > 3) {
 					// Did we just lose the gateway? :-(
@@ -1153,7 +1153,6 @@ function Janus(gatewayCallbacks) {
 			withCredentials: withCredentials,
 			body: request,
 			success: function(json) {
-				Janus.log("11111")
 				Janus.debug("Message sent!");
 				Janus.debug(json);
 				if(json["janus"] === "success") {
@@ -1164,11 +1163,10 @@ function Janus(gatewayCallbacks) {
 						callbacks.success();
 						return;
 					}
-					Janus.log("Synchronous transaction successful (" + plugindata["plugin"] + ")");
+					//Janus.log("Synchronous transaction successful (" + plugindata["plugin"] + ")");
 					var data = plugindata["data"];
 					Janus.debug(data);
 					callbacks.success(data);
-					Janus.log(data)
 					return;
 				} else if(json["janus"] !== "ack") {
 					// Not a success and not an ack, must be an error
@@ -1183,7 +1181,6 @@ function Janus(gatewayCallbacks) {
 				}
 				// If we got here, the plugin decided to handle the request asynchronously
 				
-				Janus.log(callbacks.success)
 				callbacks.success();
 			},
 			error: function(textStatus, errorThrown) {
@@ -2459,8 +2456,8 @@ function Janus(gatewayCallbacks) {
 										if(Janus.webRTCAdapter.browserDetails.browser == "safari")
 											timePassed = timePassed/1000;	// Apparently the timestamp is in microseconds, in Safari
 										var bitRate = Math.round((config.bitrate.bsnow - config.bitrate.bsbefore) * 8 / timePassed);
-										config.bitrate.value = bitRate + ' kbits/sec';
-										Janus.log(bitRate)
+										config.bitrate.value = bitRate;
+										
 										//~ Janus.log("Estimated bitrate is " + config.bitrate.value);
 										config.bitrate.bsbefore = config.bitrate.bsnow;
 										config.bitrate.tsbefore = config.bitrate.tsnow;
@@ -2469,7 +2466,7 @@ function Janus(gatewayCallbacks) {
 							});
 						});
 				}, 1000);
-				return "0 kbits/sec";	// We don't have a bitrate value yet
+				return 0;	// We don't have a bitrate value yet
 			}
 			return config.bitrate.value;
 		} else {

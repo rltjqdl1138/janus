@@ -245,6 +245,9 @@ $(document).ready(function() {
 													bootbox.alert(msg["error"]);
 												}
 											}
+											else{
+												Janus.log("hohoho")
+											}
 										}
 									}
 									if(jsep !== undefined && jsep !== null) {
@@ -381,7 +384,7 @@ function registerUsername() {
 			$('#register').removeAttr('disabled').click(registerUsername);
 			return;
 		}
-		var register = { "request": "join", "room": myroom, "ptype": "publisher", "display": username };
+		var register = { "request": "join", "room": myroom, "ptype": "publisher", "display": username, "pin": "asdf" };
 		myusername = username;
 		sfutest.send({"message": register});
 	}
@@ -457,7 +460,7 @@ function newRemoteFeed(id, display, audio, video) {
 				Janus.log("Plugin attached! (" + remoteFeed.getPlugin() + ", id=" + remoteFeed.getId() + ")");
 				Janus.log("  -- This is a subscriber");
 				// We wait for the plugin to send us an offer
-				var listen = { "request": "join", "room": myroom, "ptype": "listener", "feed": id, "private_id": mypvtid };
+				var listen = { "request": "join", "room": myroom, "ptype": "listener", "feed": id, "private_id": mypvtid, "pin": "asdf" };
 				// In case you don't want to receive audio, video or data, even if the
 				// publisher is sending them, set the 'offer_audio', 'offer_video' or
 				// 'offer_data' properties to false (they're true by default), e.g.:
