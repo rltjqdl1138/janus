@@ -3,30 +3,19 @@
  * @Brief	JS code for viewer html
  * @Author	KKS
  * @Copyright Dotout Inc
- *			Release under the GNU General Public License v3
- * todo
+ *	Release under the GNU General Public License v3
+ * 
  */
-
  
 var server = "https://125.133.241.232:8089/janus";
-var username = "kks";
-//var myroom = 1234;
 var id=0
 var getbit = 0;
-
-
 var janus = null;
 var sfutest = null;
-var opaqueId = "videoroomtest-"+Janus.randomString(12);
-var myusername = null;
-var myid = null;
-var mystream = null;
-// We use this other ID just to map our subscriptions to us
-var mypvtid;
+var opaqueId = "ER"+Janus.randomString(12);
 var feeds = []
 var bitrateTimer = [];
 
-// A new feed has been published, create a new plugin handle and attach to it as a listener
 var remoteFeed = null;
 function startJanus( myroom ){
 	Janus.init({debug: "all", callback: function() {
@@ -49,12 +38,12 @@ function startJanus( myroom ){
 							remoteFeed.send({"message": reg, "success":(data)=>{
 								if(data !== undefined && data.participants[0] !== undefined && data.participants[0].id !==undefined){
 									id=data.participants[0].id
-									var listen = { "request": "join", "room": myroom, "ptype": "subscriber", "feed": data.participants[0].id, "private_id": mypvtid };
+									var listen = { "request": "join", "room": myroom, "ptype": "subscriber", "feed": data.participants[0].id };
 									remoteFeed.send({"message": listen});
 								}
 								else{
 									id = 0
-									var listen = { "request": "join", "room": myroom, "ptype": "subscriber", "feed": 0, "private_id": mypvtid };
+									var listen = { "request": "join", "room": myroom, "ptype": "subscriber", "feed": 0 };
 									remoteFeed.send({"message": listen});
 								}
 						}});
@@ -63,26 +52,27 @@ function startJanus( myroom ){
 							Janus.error("  -- Error attaching plugin...", error);
 						},
 						onmessage: function(msg, jsep) {
-							Janus.debug(" ::: Got a message (listener) :::");
 							Janus.debug(msg);
 							var event = msg["videoroom"];
 							Janus.debug("Event: " + event);
 							if(msg["error"] !== undefined && msg["error"] !== null) {
-								//feed가 없을 때, (방송이 끊겼을 때 에러 처리)
+
+								// feed가 없을 때, (방송이 끊겼을 때 에러 처리)
+								// Error code 428 means "no video feed"
+								var timer = 5000;
 								if(msg["error_code"]==428){
 									setTimeout(function() {
 										var register = { "request": "listparticipants", "room" : myroom }
 										remoteFeed.send({"message": register, "success":(data)=>{
 											if(data !== undefined && data.participants[0] !== undefined && data.participants[0].id !==undefined){
-												var listen = { "request": "join", "room": myroom, "ptype": "subscriber", "feed": data.participants[0].id, "private_id": mypvtid };
+												var listen = { "request": "join", "room": myroom, "ptype": "subscriber", "feed": data.participants[0].id };
 												remoteFeed.send({"message": listen});
 											}
-												else{var listen = { "request": "join", "room": myroom, "ptype": "subscriber", "feed": 0, "private_id": mypvtid };
+												else{var listen = { "request": "join", "room": myroom, "ptype": "subscriber", "feed": 0 };
 												remoteFeed.send({"message": listen});
 											}
 										}});
-									}, 3000);
-									
+									}, timer);
 								}
 								else{
 									Janus.error(msg["error"]);
@@ -108,9 +98,7 @@ function startJanus( myroom ){
 									if((substream !== null && substream !== undefined) || (temporal !== null && temporal !== undefined)) {
 										if(!remoteFeed.simulcastStarted) {
 											remoteFeed.simulcastStarted = true;
-											// Add some new buttons
 										}
-										// We just received notice that there's been a switch, update the buttons
 									}
 								} else {
 									// What has just happened?
@@ -124,9 +112,6 @@ function startJanus( myroom ){
 								remoteFeed.createAnswer(
 									{
 										jsep: jsep,
-										// Add data:true here if you want to subscribe to datachannels as well
-										// (obviously only works if the publisher offered them in the first place)
-										media: { audioSend: false, videoSend: false },	// We want recvonly audio/video
 										success: function(jsep) {
 											Janus.debug("Got SDP!");
 											Janus.debug(jsep);
@@ -154,6 +139,8 @@ function startJanus( myroom ){
 									remoteFeed.spinner = null;
 								});
 							//}
+							Janus.log("this!")
+							Janus.log(stream)
 							Janus.attachMediaStream($('#viewer').get(0), stream);
 							var videoTracks = stream.getVideoTracks();
 							if(videoTracks === null || videoTracks === undefined || videoTracks.length === 0) {

@@ -245,9 +245,6 @@ $(document).ready(function() {
 													bootbox.alert(msg["error"]);
 												}
 											}
-											else{
-												Janus.log("hohoho")
-											}
 										}
 									}
 									if(jsep !== undefined && jsep !== null) {

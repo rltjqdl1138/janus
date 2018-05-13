@@ -7,7 +7,9 @@ var option = {
     cert:   fs.readFileSync('./cert.pem')
 }
 
+//https.createServer ( (req, res) =>{
 https.createServer ( option, (req, res) =>{
+    console.log("hehe")
     var pathname = url.parse(req.url).pathname;
     if(pathname == "/")
         pathname = "/viewer.html"
@@ -22,7 +24,7 @@ https.createServer ( option, (req, res) =>{
         }
         res.end();
     })
-}).listen(4000)
+}).listen(4001)
 
 
-console.log('Server running at http://127.0.0.1:4000')
+console.log('Server running at https://127.0.0.1:6000')
